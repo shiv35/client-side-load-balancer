@@ -20,7 +20,7 @@ java -jar target/client-side-rebalancer-1.0.0.jar --server.port=8083
 3. **Start the client process via HTTP request:**
 
 ```bash
-  [POST /client/start?count=200](http://localhost:8080/client/start?total=200)
+  [POST /client/start?count=200](http://localhost:8080/client/start?count=200)
 ```
 
 ---
