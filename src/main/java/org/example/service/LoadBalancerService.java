@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.config.ServerConfig;
 import org.example.model.ServerNode;
 import org.springframework.stereotype.Service;
@@ -7,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class LoadBalancerService {
     private final List<ServerNode> servers = ServerConfig.getServerList();
@@ -20,12 +22,11 @@ public class LoadBalancerService {
             try {
                 restTemplate.getForObject(currentBest.getUrl(), String.class);
             } catch (Exception e) {
-                System.out.println("Error sending to " + currentBest.getUrl());
+                log.error("Error sending to {}", currentBest.getUrl(), e);
             }
             long responseTime = System.currentTimeMillis() - start;
             currentBest.setAvgResponseTime(responseTime);
-            System.out.println("Sent system " + (i + 1) + " to " + currentBest.getUrl() +
-                    " | Response: " + responseTime + "ms");
+            log.info("Sent system {} to {} | Response: {}ms", (i + 1), currentBest.getUrl(), responseTime);
         }
     }
 
@@ -33,8 +34,7 @@ public class LoadBalancerService {
         ServerNode fastest = selectBestService();
         if (!fastest.getUrl().equals(currentBest.getUrl()) &&
                 fastest.getAvgResponseTime() < currentBest.getAvgResponseTime() - 20) {
-            System.out.println("Rebalancing from " + currentBest.getUrl() +
-                    " to " + fastest.getUrl());
+            log.info("Rebalancing from {} to {}", currentBest.getUrl(), fastest.getUrl());
             currentBest = fastest;
         }
     }
